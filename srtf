@@ -1,0 +1,110 @@
+#include <stdio.h>
+
+struct process{
+  int brstT;
+  int obrstT;
+  int arrT;
+  int processID;
+  int respT;
+  int waitT;
+  int taT;
+  int compT;
+};
+
+
+
+
+int main()
+{
+  int p;
+  printf("Input number of processes.\n");
+  scanf("%d",&p);
+  struct process processes[p];
+  printf("Input process IDs, arrival times and burst times.\n");
+  for(int i = 0;i < p;i++)
+  {
+    scanf("%d %d %d",&processes[i].processID,&processes[i].arrT,&processes[i].brstT);
+    processes[i].obrstT=processes[i].brstT;
+    processes[i].respT=-1;
+  }
+  for(int i = 0;i < p;i++)
+  {
+    struct process p1;
+    for(int j = p-1;j > i;j--)
+    {
+      if(processes[j].brstT<processes[j-1].brstT)
+      {
+        p1 = processes[j];
+        processes[j] = processes[j-1];
+        processes[j-1] = p1;
+      }
+    }
+  }
+  int executed = 0;
+  int t = 0;
+  while(executed<p)
+  {
+    int j = 0;
+    int curr;
+    int currB;
+    while(1)
+    {
+      if(processes[j].arrT<=t && processes[j].brstT>0)
+      {
+        curr = j;
+        currB = processes[j].brstT;
+        break;
+      }
+      else
+        j++;
+    }
+    j++;
+    while(processes[j].brstT==currB)
+    {
+      if(processes[curr].processID>processes[j].processID)
+      {
+        curr = j;
+      }
+      j++;
+    }
+    if(processes[curr].respT==-1)
+      processes[curr].respT=t;
+    processes[curr].brstT--;
+    if(processes[curr].brstT==0)
+    {
+      executed++;
+      processes[curr].compT=t+1;
+    }
+    t++;
+    printf("P%d  ",processes[curr].processID);
+ for(int i1 = 0;i1 < p;i1++)
+  {
+    struct process p1;
+    for(int j1 = p-1;j1 > i1;j1--)
+    {
+      if(processes[j1].brstT<processes[j1-1].brstT)
+      {
+        p1 = processes[j1];
+        processes[j1] = processes[j1-1];
+        processes[j1-1] = p1;
+      }
+    }
+  }
+  }
+  for(int i = 0;i < p;i++)
+  {
+    processes[i].taT = processes[i].compT-processes[i].arrT;
+    processes[i].waitT = processes[i].taT-processes[i].obrstT;
+  }
+  double taA=0.0,waA=0.0,rA=0.0;
+  for(int i = 0;i < p;i++)
+  {
+    taA = taA+processes[i].taT;
+    waA=waA+processes[i].waitT;
+    rA=rA+processes[i].respT-processes[i].arrT;
+  }
+  taA = taA/p;
+  waA= waA/p;
+  rA=rA/p;
+  printf("Average turn around time : %f\nAverage waiting time : %f\nAverage response time : %f\n",taA,waA,rA);
+}
